@@ -1,0 +1,204 @@
+---------------------------------- 1st ya JSF er project banabo (index.xhtml) ----------------------------------------
+
+
+------------------------------------ fail.xhtml ------------------------------------------
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+       Fail
+    </h:body>
+</html>
+
+------------------------------------------------------- success.xhtml ------------------------------------------------------------------------ 
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+      Success
+    </h:body>
+</html>
+
+--------------------------------- signup.xhtml --------------------------------------------------------------
+    <h:body>
+          <h1> User Registration form</h1>
+        <h:form>
+            <table>
+                <tr>
+                    <td>
+                        <h:outputLabel value="ID: "></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.id}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="Name"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.name}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="Email:"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.email}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="Password"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.password}"></h:inputText>
+                    </td>
+                </tr>   
+            </table>  
+            <h:commandButton value="Sign Up" action="#{student.signUp()}"></h:commandButton>            
+        </h:form>
+    </h:body>
+</html>
+
+------------------------------- login.xhtml -------------------------------------------------------------------------
+<h:body>
+          <h1> User Registration form</h1>
+        <h:form>
+            <table>
+                <tr>
+                    <td>
+                        <h:outputLabel value="Email: "></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.email}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="Password"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.password}"></h:inputText>
+                    </td>
+                </tr>                                          
+            </table>  
+            <h:commandButton value="login" action="#{student.success()}"></h:commandButton>            
+        </h:form>
+    </h:body>
+---------------------------------------------  student class --------------------------------------------------------------------
+
+
+package com.exam;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+@ManagedBean
+@SessionScoped
+
+public class Student {
+
+int id;
+String name;
+String email;
+String password;
+
+    public Student() {
+    }
+
+    public Student(int id, String name, String email, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+//------------------------------------- insert -----------------------------
+    public String signUp(){
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); 
+             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/stdb", "root", "nclc123456");
+            PreparedStatement ps = con.prepareStatement("insert into student(id,name,email,password) values(?,?,?,?)");
+            ps.setInt(1, this.id);
+            ps.setString(2, this.name);
+            ps.setString(3, this.email);
+            ps.setString(4, this.password);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    
+      return "login.xhtml";  
+    }
+
+// 	---------------------------------------------------------------  For Checking  ------------------------------------------------------------------
+    
+     public String success(){
+          String result = "fail.xhtml";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost/stdb", "root", "nclc123456");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM student WHERE email=? and password=?");
+            ps.setString(1, this.email);
+            ps.setString(2, this.password);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result = "success.xhtml";
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        return result;
+     }
+}
+
+--------------------------------------------------------------  THE END  -------------------------------------------------------
+
