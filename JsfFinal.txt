@@ -1,0 +1,232 @@
+Fail.Xhtml
+--------------------
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <h2>Opps! Your login is fail</h2>
+    </h:body>
+</html>
+
+Success.xhtml
+------------------------
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+       <h2>Yes! Your login is Success</h2>
+    </h:body>
+</html>
+
+Login.xhtml
+-------------------------
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+         <h1> User Registration form</h1>
+        <h:form>
+            <table>
+                <tr>
+                    <td>
+                        <h:outputLabel value="ID"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.id}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="password"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.password}"></h:inputText>
+                    </td>
+                </tr>
+               
+      
+            </table>
+            <p></p>
+            <h:commandButton value="Login" style="margin-left: 100px;" action="#{student.login()}"></h:commandButton>
+             
+        </h:form>
+    </h:body>
+</html>
+
+SingUp.xhtml
+---------------------
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Facelet Title</title>
+    </h:head>
+    <h:body>
+        <h1> User Registration form</h1>
+        <h:form>
+            <table>
+                <tr>
+                    <td>
+                        <h:outputLabel value="ID"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.id}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="name"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.name}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="email"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.email}"></h:inputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h:outputLabel value="password"></h:outputLabel>
+                    </td>  
+                    <td>
+                        <h:inputText value="#{student.password}"></h:inputText>
+                    </td>
+                </tr>
+               
+      
+            </table>
+            <p></p>
+            <h:commandButton value="singup" style="margin-left: 100px;" action="#{student.singup()}"></h:commandButton>
+             
+        </h:form>
+    </h:body>
+</html>
+
+Student.java
+_____________________
+
+package com.exam;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
+@ManagedBean
+@SessionScoped
+public class student {
+    int id;
+    String name;
+    String email;
+    String password;
+
+    public student() {
+    }
+
+    public student(int id, String name, String email, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+         public String login(){
+        String ret = "fail.xhtml";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/stdb", "root", "nclc123456");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM student WHERE id=? AND password=?");
+            ps.setInt(1, this.id);
+            ps.setString(2,this.password);
+            ResultSet rs = ps.executeQuery();
+           
+            while (rs.next()) {
+                this.id=rs.getInt(1);
+                this.name=rs.getString(2);
+                ret = "success.xhtml";
+            }
+            ps.close();
+            con.close();
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        return ret;
+    }
+        public String singup() {
+        String ret = "fail.xhtml";
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+           Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/stdb", "root", "nclc123456");
+            PreparedStatement ps = con.prepareStatement("insert into student(id,name,email,password)values(?,?,?,?)");
+            ps.setInt(1, this.id);
+            ps.setString(2, this.name );
+            ps.setString(3, this.email );
+            ps.setString(4, this.password );
+         ps.executeUpdate();
+           
+            
+            ps.close();
+            con.close();
+
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
+        return "login";
+    }
+    
+}
